@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<!-- <default-servlet-handler/> 태그 미사용시 
+		방법1] wepapp/reosurces디렉토리에만 스태틱 리소스를 넣거나 
+		방법2] wepapp아래 리소스 종류별로 디렉토리 생성후 
+		<resources mapping="/접근URL/**" location="/디렉토리명/" 
+		/>식으로 계속 추가해 주어야한다. 
+		방법3] <default-servlet-handler/>태그 추가 
+		-->
+	<!-- 방법 1] -->
+	<!-- 
+		mapping 속성 : HTML에서 경로지정시 사용할 가상의 이름 
+		location:wepapp아래의 실제 디렉토리 경로 
+		
+	<resources mapping="/resources/**" location="/resources/" />
+	  //resources 매핑이름을 static으로 변경 링크 걸때는 static으로 경로지정
+	 <resources mapping="/static/**" location="/resources/" />
+	 -->
+	 
+	 <!-- 방법2] -->
+	 <!--  
+	 <resources location="/images/" mapping="/images/**"/>
+	 <resources location="/styles/" mapping="/styles/**"/>
+	 -->
+	 
+	<!-- 방법3] webapp아래 아무곳이나 폴더를 만들어 리소스를 두도록 설정 추가 -->
+	<!-- webapp의 어느 디렉토리에 스태틱 리소스(이미지,.css,.js등)를 두더라도 읽어 올수 있도록 설정하는 부분 -->
+	<!-- 서버의 디렉토리 구조대로 접근 -->
+	 <default-servlet-handler/>
+	 
+	 <!-- 방법 1 이나 3번만 쓰자 -->
+	 
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" /> <!-- value값이 접두어 -->
+		<beans:property name="suffix" value=".jsp" /> <!-- value값이 접미어 -->
+	</beans:bean>
+	
+	<!-- 
+	 <context:component-scan base-package="최상위 패키지명"/>
+	 -최상위 패키지부터 하위 패키 안에 있는 모든 컴포넌트(자바 클래스)를 자동으로 생성해준다
+	   즉 설정파일에 빈을 등록할 필요 없다.
+	 
+	 단, class앞에 @Controller,@Component,@Service,@Repository가 붙은 클래스만 생성해 준다.
+	 각 클래스의 성격에 따라 적절한 어노테이션을 붙이자
+	 @Controller:사용자 요청을 처리하는 클래스
+	 @Service : 서비스 역할을 하는 클래스
+	 @Repository:DAO계열 클래스
+	 @Component:기타 클래스
+	 
+	 -스프링 2.5 버전에서 등장.이전 버전의 스프링에서는 모든 빈들은 XML 파일에 설정해야함.  
+	 -최상위 패키지 안의 클래스들을 스캔하고 위 어노테이션이 붙은 클래스들의 인스턴스를 생성
+	 -@Autowired 와 @Qualifier 어노테이션을 활성화
+	 -annotation-config선언 불필요
+	 
+	 
+	   ※<context:annotation-config>
+	 -ApplicationContext 안에 이미 등록된 Bean들의 Annotation을 활성화(@Autowired 및 @Resource등)하기 위해 사용
+	 -component-scan과의 차이점은 이 설정은 빈을 생성하지는 않는다
+	  --> 
+	  
+	<!-- 아래 주석시 사용자 요청처리와 관련된 모든 클래스를 빈으로 등록해야 생성된다. -->
+	<context:component-scan base-package="com.kosmo.springapp" />
+	<!-- 
+	<beans:bean class="com.kosmo.springapp.HomeController"/>
+	<beans:bean class="com.kosmo.springapp.IndexController"/>
+	 -->
+	<!-- 탑레벨 패키지 부터 하위 패키지까지  쭉 스캔한다 -->
+	<!-- 원칙: .do요청과 매핑된 클래스는 bean설정 파일에 하나만 등록 가능 여러개 동시 등록시 "There is already
+		handler of type 컨트롤러클래스 mapped" 에러 발생 단, .do 요청과 매핑을 하지 않은 기타 클래스는 여러개 등록
+		가능 -->
+	<!-- BeanNameUrlHandlerMapping -->
+	<!--
+		-기본 핸들러 매핑
+		-<bean>태그의 name 속성에 지정한 요청명(URL패턴)과 컨트롤러 클래스를 매핑
+		 name : 컨텍스트 루트를 제외한 경로 지정(반드시 /부터)
+		 class : 요청을 처리할 컨트롤러 클래스 지정 -->
+	
+	<beans:bean name="/HandlerMapping/BeanNameUrl.do" class="com.kosmo.springapp.basic.handlermapping.BeanNameUrlController"/>
+	<!-- DefaultAnnotationHandlerMapping -->
+	<!-- 
+		-기본 핸들러 매핑 
+		-class속성 필수(name속성 불필요) 
+		-요청과 매핑은 class속성에 지정한 컨트롤러 클래스의 어노테이션으로 매핑	
+	 -->
+	 <!-- 
+	 <beans:bean class="com.kosmo.springapp.basic.handlermapping.AnnotationController"/>
+	  -->
+	  
+	  <!-- 
+	 	 SimpleUrlHandlerMapping
+	   -->
+	   <!-- 
+		-기본 핸들러 매핑이 아님으로 사용시에는 반드시 xml파일에 bean으로 등록		
+		-한 섹션안에서 여러 요청과 컨트롤러 클래스를 관리하고자 할때 주로 사용 -->
+	<!--아래는 new SimpleUrlHandlerMapping().setMappings(Properties) 와 같다 -->
+	<!-- key: 요청명(URL 패턴)(.do) 
+		<prop>엘리먼트 사이에는 컨트롤러 
+		클래스의 id값 지정 -->
+	   <beans:bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+	   		<beans:property name="order" value="1"/> <!-- 핸들러 매핑 사이의 우선순위 설정. 반드시 설정해야 한다. -->
+	   		<beans:property name="mappings">
+	   			<beans:props>
+	   				<beans:prop key="/HandlerMapping/SimpleUrlFirst.do">first</beans:prop>
+	   				<beans:prop key="/HandlerMapping/SimpleUrlSecond.do">second</beans:prop>
+	   			</beans:props>
+	   		</beans:property>	   
+	   </beans:bean>
+	  <!-- 요청을 처리할 빈 등록 -->
+	<!-- SimpleUrlFirstController first = new SimpleUrlFirstController() 즉 id값이 
+		 인스턴스변수와 같다. 프레임웍이 빈 생성시 위와 같이 생성해줌. -->
+	   <beans:bean id="first" class="com.kosmo.springapp.basic.handlermapping.SimpleUrlFirstController"/>
+	   <beans:bean id="second" class="com.kosmo.springapp.basic.handlermapping.SimpleUrlSecondController"/>
+		<!-- 
+		※사용자 요청과 매핑이 안된 컨트롤러 계열이 아닌 클래스는 여러개의 빈을 등록 가능. 
+	        단, 사용자 요청을 처리하는 컨트롤러 클래스는 하나만 빈으로 등록 가능 
+		@Autowired:타입 -> 이름(id) -> Qualifier (속성, 세터 그리고 생성자 모두에 붙일 수 있다)
+		@Resource:이름(id) -> 타입 -> Qualifier (생성자를 제외한 세터 및 속성에 붙일 수 있다) 
+		타입이 같은 빈을 여러개 등록할때는 	<qualifier>추가 -->
+	<!-- 생성자 인젝션 및 세터 인젝션시 주입할 값이 객체이면 ref속성 사용, 
+	     주입할 값이 기본 자료형이거나 String이면 value 
+		 속성에 값 지정 또한 bean등록시 id속성은 인스턴스 변수와 같다 
+		 그래서 다른 빈에서 참조할때 사용한다(참조시에는 ref속성으로) -->
+		<!-- [생성자를 통한 주입] -->  
+		<!-- 주입 대상이 될 Person클래스를 빈으로 등록 -->
+		<!--1]type속성과 value혹은 ref속성 사용 -->
+	<!--  Person personType=new Person("한소인","가산동",20);와 같다-->
+	  <beans:bean id="personType" class="com.kosmo.springapp.basic.injection.Person">	
+	  		<beans:qualifier value="person1"/><!-- @Qualifiler어노테이션에서 사용하는 값 -->  	
+		  	<beans:constructor-arg type="java.lang.String" value="한소인"/>
+		  	<beans:constructor-arg type="java.lang.String" value="가산동"/>
+		  	<beans:constructor-arg type="int" value="20"/>	  
+	  </beans:bean>
+	 <!--2]index속성와 value혹은 ref속성 사용 -->
+	<!-- Person personIndex=new Person("가길동","청담동",30);와 같다  -->
+	   <beans:bean id="personIndex" class="com.kosmo.springapp.basic.injection.Person">	  	
+	   		<beans:qualifier value="person2"/>
+		  	<beans:constructor-arg index="0" value="가길동"/>
+		  	<beans:constructor-arg index="1" value="청담동"/>
+		  	<beans:constructor-arg index="2" value="30"/>	  
+	  </beans:bean>
+	  <!--
+	  ConstructorController에서 @RequestMapping("/Injection/Constructor.do") 추가시 Ambiguous mapping 에러발생 
+	  아래코드를 사용하려면 즉 설정을 통한 생성자 인젝션을 하려면
+	@Controller(자동 생성됨)를 사용하지말고 Controller계열 인터페이스나 클래스를 상속받아서 
+	컨트롤러로 만들어야 한다.
+	단,name속성 추가해서 BeanNameUrlHandlerMapping으로 요청을 매핑해야 한다
+	  <beans:bean class="com.kosmo.springapp.basic.injection.ConstructorController">
+	  	<beans:constructor-arg index="0" ref="personType"/>
+	  	<beans:constructor-arg index="0" ref="personIndex"/>
+	  </beans:bean>
+	   -->
+	   <!-- [세터를 통한 주입] - setter를 호출한거와 같다 -->
+	  <!-- property태그를 이용해서 주입하거나 p접두어(p:)사용해서 주입 -->
+	<!-- InjectionController에 주입용 Person 객체 -->
+	   <beans:bean p:addr="청담동" p:age="100" id="personArgs" class="com.kosmo.springapp.basic.injection.Person">
+	   		<!-- name속성:해당 빈의 멤버변수명(속성명) ref 혹은 value속성: 주입할 대상이 객체이면 ref, 기본자료형 혹은 String타입이면 value속성 사용 -->
+	   		<beans:property name="name" value="청길동"/>	   		
+	   </beans:bean>
+	   <beans:bean  id="personDefault" class="com.kosmo.springapp.basic.injection.Person"/>
+	   		
+	   	<!-- DI와 관련된 어노테이션을 테스트하기 위한 빈 등록 -->	
+	   	
+	   	<!-- @Autowired를 필드에 부탁 테스트 시 -->
+	   	 
+	   	<!-- <beans:bean  p:name="가길동" p:years="20" class="com.kosmo.springapp.basic.annotation.Command"> 클래스명만 와야하니까 Command.java 에서 .java 는 제거
+	   		<beans:qualifier value="fCommand"/>  id와 똑같이 주면 헷갈릴 이유가 없다.
+	   	</beans:bean>
+	   	<beans:bean  class="com.kosmo.springapp.basic.annotation.Command"> 클래스명만 와야하니까 Command.java 에서 .java 는 제거 
+	   		<beans:qualifier value="sCommand"/>	   		
+	   		<beans:property name="name" value="나길동"/>
+	   		<beans:property name="years" value="30"/>
+	   	</beans:bean> -->
+	   	 <!-- 두 개 등록해도 상관없음 요청받는 애가 아니기때문 -->
+	   	<!-- 같은타입 2개라서 에러난다. id를 주던지 or 안준다면 Qualifier 주면된다. -->
+	   	<!-- 커맨드 객체 2개 생성 -->
+	   	<!-- @Autowired를 세터/생성자에 부착 테스트시 -->
+	   	<beans:bean id="fCommand" p:name="가길동" p:years="20" class="com.kosmo.springapp.basic.annotation.Command"/>
+	   	<beans:bean id="sCommand" p:name="나길동" p:years="20" class="com.kosmo.springapp.basic.annotation.Command"/>
+
+	   	<!--
+	  [리소스파일에 등록한 키값 사용하기]
+	  -빈 설정파일(XML)에서 EL표현식을 사용해서 읽을 수 있다.
+	    단, EL식 사용시 빈 공백 없어야 한다 ${키값 }[X]
+	  
+	  1]src밑에 파일명.properties파일 생성(파일명은 임의로)
+	  2]빈 설정파일에 PropertyPlaceholderConfigurer를
+	    등록하거나 property-placeholder를 context접두어 등록
+	   
+	    1]에서등록한 리소스파일의 위치를
+	    locations혹은 location(property-placeholder일때)
+	        속성을 통해서 설정해 준다
+	   
+	  3]빈 설정 파일에 등록한 빈에 키값을 주입하기 위해
+	    setter인젝션 사용.
+	        값 설정시에는 EL식으로(단, 공백 없어야 함)
+	 -->
+	  <!-- context접두어 사용(리소스파일이 여러개인 경우    ,(콤마)로 구분해서 나열) --> 
+	 <context:property-placeholder location="classpath:resc.properties,classpath:sub/resc.properties,classpath:onememo/onememo.properties"/> <!--location으로  위치 지정해주기 -->
+	 <!-- 리소스 컨트롤러에 주입할 커맨드객체(DTO계열) 빈 등록-세터 인젝션을 통해 초기화 --> 
+	 <beans:bean p:name="${name}" p:user="${user}" p:pass="${pass}" class="com.kosmo.springapp.basic.resource.UserCommand"/>
+	 
+	 <!-- 
+	 실제 유효성 검증을 하는 빈 객체 : Validator
+	  -->
+	  <!-- 
+	  <beans:bean class="com.kosmo.springapp.basic.validation.FormValidator"/>
+	   -->
+	  <!-- 유효성 검증을 위한 스ㅡ링에서 제공하는 빈 등록(에러메시지 출력하기위함)  -->
+	  <!-- id값은 내부적으로 프레임워크가 messageSource으로 사용함으로
+	  		반드시 id에 messageSource값으로 설정  -->
+	   <!-- 
+	   <beans:bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+	  	
+	  	src 밑이나 WEB-INF 밑에 에러메시지를 저장한 
+		 properties파일명(확장자를 생략한) 
+		 
+		 키값=에러메시지
+		 
+		 키값은   에러코드.커맨드객체명.속성 = 에러 내용
+ 				 단,커맨드 객체명은 소문자로
+		 
+		 에러코드는 rejectValue("속성","에러코드")에 설정한
+		 에러코드값
+		 예]nameError.formCommand.name
+		 
+	    id="messageSource" 변수명이니까 소문자로 시작  
+	     		<beans:property name="basenames">
+	   			<beans:list>
+	   				<beans:value>com/kosmo/springapp/basic/validation/ErrorMessage</beans:value><- ErrorMessage.properties 에 .properties는 생략 
+	   			</beans:list>
+	   		</beans:property>
+	   </beans:bean>
+	  -->
+	  
+	 
+	 
+	 <!-- <beans:bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	 	<beans:property name="locations">
+	 		<beans:list>
+	 			
+	 		</beans:list>
+	 	</beans:property>
+	 </beans:bean>  이 방법은 좀 복잡하다-->
+	   		
+	  
+</beans:beans>

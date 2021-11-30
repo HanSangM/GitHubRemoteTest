@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	<!-- 사용자 요청을 처리할 빈 등록 -->
+	<!--	
+	name : 요청 URL 패턴
+	class : 패키지를 포함한 컨트롤러의 클래스명
+	 -->
+	<bean name="/dispatcherservlet.kosmo" class="com.kosmo.springapp.DispatcherController"/>
+
+
+</beans>
+
